@@ -204,6 +204,151 @@
             
 
   
+    <article id="post-Zabbix系统快速入门" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2024/04/17/Zabbix%E7%B3%BB%E7%BB%9F%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/" target="_blank">Zabbix系统快速入门</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2024/04/17/Zabbix%E7%B3%BB%E7%BB%9F%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/" class="archive-article-date">
+        <time datetime="2024-04-17T06:37:09.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2024-04-17</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <h1 id="0-环境准备"><a href="#0-环境准备" class="headerlink" title="0.  环境准备"></a><strong>0.  环境准备</strong></h1><h2 id="Agent安装"><a href="#Agent安装" class="headerlink" title="Agent安装"></a><strong>Agent安装</strong></h2><p>Windows安装</p>
+<p>官网：<a target="_blank" rel="noopener" href="https://www.zabbix.com/download_agents">https://www.zabbix.com/download_agents</a></p>
+<p>选择对应版本的Windows安装客户端，执行程序</p>
+<p>到达此处，server填写Zabbix系统端所在服务器即可</p>
+<p><img src="/images/zabbix-img1.png" alt="img"></p>
+<p>Linux安装</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">rpm  -Uvh  zabbix-agent-5.0.28-1.el6.x86_64.rpm</span><br><span class="line">mv   /etc/zabbix/zabbix_agentd.conf   /etc/zabbix/zabbix_agentd.conf.bak</span><br><span class="line">wget  ftp://122.147.0.4/zabbix//zabbix_agentd.conf  -O  /etc/zabbix/zabbix_agentd.conf</span><br><span class="line">sed -i -e &#x27;s/ListenIP=/ListenIP=0.0.0.0/g&#x27; -e &#x27;s/LogFileSize=0/LogFileSize=32/g&#x27; /etc/zabbix/zabbix_agentd.conf</span><br><span class="line">service zabbix-agent restart</span><br><span class="line">chkconfig --level 35 zabbix-agent on</span><br></pre></td></tr></table></figure>
+
+<h1 id="1-主机和主机群组"><a href="#1-主机和主机群组" class="headerlink" title="1. 主机和主机群组"></a>1. 主机和主机群组</h1><p>主机群组顾名思义就是一堆主机的集合。主机在Zabbix系统里面是作为数据展示的基本单位，一个主机就代表着一台服务器。</p>
+<h2 id="主机群组"><a href="#主机群组" class="headerlink" title="主机群组"></a><strong>主机群组</strong></h2><p>创建主机群组：</p>
+<p>配置-主机群组，点击右上角创建主机群组</p>
+<p><img src="/images/zabbix-img2.png" alt="img"></p>
+<p>输入所需的主机群组名字即可。</p>
+<h2 id="主机"><a href="#主机" class="headerlink" title="主机"></a><strong>主机</strong></h2><p>创建主机：</p>
+<p>配置-主机，点击右上角创建主机</p>
+<p><img src="/images/zabbix-img3.png" alt="img"></p>
+<p>其中三项必填项：</p>
+<p>1、主机名称：一般写服务器IP接口</p>
+<p>2、群组：选择该主机匹配的主机群组</p>
+<p>3、Interfaces：选择获取数据的接口。一共有四种方式，分别是Agent客户端、SNMP、JMX、IPMI；</p>
+<p>注：多为Agent客户端，也就是第0章所描述内容，IP地址填写安装Agent客户端所在服务器的IP地址，接口默认10050</p>
+<h1 id="2-监控项"><a href="#2-监控项" class="headerlink" title="2. 监控项"></a>2. 监控项</h1><p>监控项是Zabbix中获得数据的基础。没有监控项，就没有数据——因为一个主机中只有监控项定义了单一的指标或者需要获得的数据。</p>
+<h2 id="添加监控项"><a href="#添加监控项" class="headerlink" title="添加监控项"></a><strong>添加监控项</strong></h2><p>所有的监控项都是依赖于主机的。这就是当我们要配置一个监控项时，先要进入 配置 → 主机 页面查找到新建的主机。</p>
+<p>在主机中，点击监控项这个链接，然后右上角点击创建监控项（Create item），将会显示一个监控项定义表格</p>
+<p><img src="/images/zabbix-img4.png" alt="img"></p>
+<p>所有必填项均以红色星标标示。</p>
+<p>对于监控项的示例，需要输入以下必要的信息：</p>
+<p><strong>名称（Name）</strong></p>
+<p>输入任意字符作为值。在列表中和其他地方，都会显示这个值作为监控项名称。</p>
+<p><strong>键值（Key）</strong></p>
+<p>这是监控项的一个技术上的名称，用于识别获取信息的类型。这个特定值需要是Zabbix Agent预定义值中的一种。</p>
+<p><strong>信息类型（Type of information）</strong></p>
+<p>这个属性定义了想获得数据的格式。</p>
+<p>至此就完成了一个监控项的创建，新的监控项将出现在监控项列表中。</p>
+<h2 id="查看数据"><a href="#查看数据" class="headerlink" title="查看数据"></a><strong>查看数据</strong></h2><p>当一个监控项定义完成后，你可能好奇它具体获得了什么值。前往监测（Monitoring） → 最新数据（Latest data）, 在过滤器中选择刚才新建的主机，然后点击应用（Apply)</p>
+<p><img src="/images/zabbix-img5.png" alt="img"></p>
+<p>同时，第一次获得的监控项值最多需要60秒才能到达。默认情况下，这是服务器读取变化后的配置文件，获取并执行新的监控项的频率。</p>
+<h1 id="3-触发器"><a href="#3-触发器" class="headerlink" title="3.     触发器"></a>3.     <strong>触发器</strong></h1><p>监控项只是用于收集数据。如果需要自动评估收到的数据，我们则需要定义触发器。触发器包含了一个表达式，这个表达式定义了数据的可接受的阈值级别。</p>
+<p>如果收到的数据超过了这个定义好的级别，触发器将被“触发”，或者进入“异常（Problem）”状态——从而引起我们的注意，让我们知道有问题发生。如果数据再次恢复到合理的范围，触发器将会到“正常（Ok）”状态</p>
+<h2 id="添加触发器"><a href="#添加触发器" class="headerlink" title="添加触发器"></a><strong>添加触发器</strong></h2><p>为监控项配置触发器，前往配置（Configuration） → 主机（Hosts），找到相应主机，点击旁边的触发器（Triggers） ，然后点击创建触发器（Create trigger）。这将会向我们展现一个触发器定义表单</p>
+<p><img src="/images/zabbix-img6.png" alt="img"></p>
+<p>对于我们的这个触发器，有下列必填项：</p>
+<p><strong>名称（Name）</strong></p>
+<p>输入任意字符作为值。这个值会作为触发器的名称被显示在列表和其他地方。</p>
+<p><strong>表达式（Expression）</strong></p>
+<p>输入：{New host:system.cpu.load.avg(3m)}&gt;2</p>
+<p>这个是触发器的表达式。确认这个表达式输入正确，直到最后一个符号。此处，监控项值(system.cpu.load)用于指出具体的监控项。这个特定的表达式大致是说如果3分钟内，CPU负载的平均值超过2，那么就触发了问题的阈值。</p>
+<p>完成后，点击添加（Add）。新的触发器将会显示在触发器列表中。</p>
+<h2 id="触发器状态"><a href="#触发器状态" class="headerlink" title="触发器状态"></a><strong>触发器状态</strong></h2><p>当一个触发器定义完毕后，你可能想查看它的状态。</p>
+<p>如果CPU负载超过了你在触发器中定义的阈值，这个问题将显示在监控（Monitoring） → 问题（Problems）中。</p>
+<h1 id="4-事件通知"><a href="#4-事件通知" class="headerlink" title="4. 事件通知"></a>4. <strong>事件通知</strong></h1><p>当监控项收集了数据后，触发器会根据异常状态触发报警。根据一些报警机制，它也会通知我们一些重要的事件，而不需要我们直接在Zabbix前端进行查看。</p>
+<p>这就是通知（Notifications）的功能。</p>
+<h2 id="媒体介质"><a href="#媒体介质" class="headerlink" title="媒体介质"></a><strong>媒体介质</strong></h2><p>Zabbix中最初内置了一些预定义的通知发送方式。常用的有Email、Webhook、脚本等</p>
+<h2 id="动作"><a href="#动作" class="headerlink" title="动作"></a><strong>动作</strong></h2><p>发送通知是Zabbix中动作（actions）执行的操作之一。因此，为了建立一个通知，前往配置（Configuration） → 动作（Actions），然后点击创建动作（Create action）</p>
+<h1 id="5-模版"><a href="#5-模版" class="headerlink" title="5. 模版"></a>5. <strong>模版</strong></h1><p>在之前的章节中学会了如何配置监控项、触发器，以及如果从主机上获得问题的通知。</p>
+<p>虽然这些步骤提供了很大的灵活性，但仍然需要很多步骤才能完成。如果我们需要配置上千台主机，一些自动化操作会带来更多便利性。</p>
+<p>模版（templates）功能可以实现这一点。模版允许对有用的监控项、触发器和其他对象进行分组，只需要一步就可以对监控主机应用模版，以达到反复重用的目的。</p>
+<p>当一个模版链接到一个主机后，主机会继承这个模版中的所有对象。简单而言，一组预先定义好的检查会被快速应用到主机上。</p>
+<h2 id="添加模版"><a href="#添加模版" class="headerlink" title="添加模版"></a><strong>添加模版</strong></h2><p>开始使用模版，你必须先创建一个。在配置（Configuration） → 模版（Templates）中，点击创建模版（Create template）。这将会像我们展现一个模版配置表格</p>
+<p><img src="/images/zabbix-img7.png" alt="img"></p>
+<p>需要输入以下必填字段：</p>
+<p><strong>模版名称（Template name）</strong></p>
+<p>输入一个模版名称。可以使用数字、字母、空格及下划线。</p>
+<p><strong>组（Groups）</strong></p>
+<p>使用选择（Select）按钮选择一个或者多个组。模版必须属于一个组。</p>
+<p>完成后，点击添加（Add）。你新建的模版可以在模版列表中查看。</p>
+<p>至此可以用上述同样的方法在模版中添加其他的监控项，触发器以及其他对象，直到完成满足特定需求（如监控OS，监控单个应用）的完整的对象组合</p>
+<h2 id="链接模版到主机"><a href="#链接模版到主机" class="headerlink" title="链接模版到主机"></a><strong>链接模版到主机</strong></h2><p>准备一个模版后，将它链接到一个主机。前往配置（Configuration） → 主机（Hosts），点击’新主机（New host）’打开表单，前往模版（Templates）标签页。</p>
+<p>在链接新模版（Link new templates）输入我们刚刚新创建的模板名字，我们所创建的模板的名称应该显示在下拉列表中，请向下滚动以进行选择。请查看模版是否出现在链接新模版（Link new templates）文本框</p>
+<p><img src="/images/zabbix-img8.png" alt="img"></p>
+<p>点击更新（Update）保存配置。现在，新模版及其所有的对象被添加到了主机。</p>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2024/04/17/Zabbix%E7%B3%BB%E7%BB%9F%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Windows下BAT脚本制作自启动服务" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
